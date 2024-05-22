@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Group;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,6 +14,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
          \App\Models\User::factory(50)->create();
+
+         $this->call([
+             GroupSeeder::class,
+             UserGroupSeeder::class,
+             MessageGroupSeeder::class
+         ]);
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',

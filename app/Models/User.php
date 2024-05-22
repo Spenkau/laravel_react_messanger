@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -14,9 +15,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable, Searchable;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
+     * @var string[]
      */
     protected $fillable = [
         'name',
@@ -28,9 +27,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
+     * @var string[]
      */
     protected $hidden = [
         'password',
@@ -38,9 +35,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
+     * @var string[]
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
@@ -48,11 +43,17 @@ class User extends Authenticatable
         'last_seen_at' => 'datetime',
     ];
 
+    /**
+     * @return string
+     */
     public function searchableAs(): string
     {
         return 'users_index';
     }
 
+    /**
+     * @return array
+     */
     public function toSearchableArray(): array
     {
         return [
@@ -61,17 +62,26 @@ class User extends Authenticatable
         ];
     }
 
-    public function receiveMessages(): \Illuminate\Database\Eloquent\Relations\HasMany
+    /**
+     * @return HasMany
+     */
+    public function receiveMessages(): HasMany
     {
         return $this->hasMany(Chat::class, 'receiver_id', 'id')->orderByDesc('id');
     }
 
-    public function sendMessages(): \Illuminate\Database\Eloquent\Relations\HasMany
+    /**
+     * @return HasMany
+     */
+    public function sendMessages(): HasMany
     {
         return $this->hasMany(Chat::class, 'sender_id', 'id')->orderByDesc('id');
     }
 
-    public function messages(): \Illuminate\Database\Eloquent\Relations\HasMany
+    /**
+     * @return HasMany
+     */
+    public function messages(): HasMany
     {
         return $this->hasMany(Chat::class, 'sender_id', 'id');
     }
