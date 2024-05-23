@@ -1,12 +1,15 @@
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
 import MineProfileChat from "@/Components/MineProfileChat.jsx";
 import SearchChatBar from "@/Components/SearchChatBar.jsx";
 import ChatListUser from "@/Components/ChatListUser.jsx";
-import { router, usePage } from "@inertiajs/react";
-import { debounce } from "lodash";
+import {router, usePage} from "@inertiajs/react";
+import {debounce} from "lodash";
+import Menu from "@/Components/Menu.jsx";
+import Index from "@/Pages/Group/Index.jsx";
+import GroupListUser from "@/Components/GroupListUser.jsx";
 
-export default function ({ children }) {
-    const { auth } = usePage().props;
+export default function ({children}) {
+    const {auth} = usePage().props;
 
     useEffect(() => {
         const debouncedReload = debounce(() => {
@@ -38,7 +41,7 @@ export default function ({ children }) {
         let className = "px-5 py-2 pb-5 lg:w-1/3 lg:border-r lg:border-gray-700 "
 
         if (currentPath === 'chat.index') className += "flex flex-col w-full"
-        else  className += "hidden flex-col lg:flex"
+        else className += "hidden flex-col lg:flex"
 
         return className;
     }
@@ -50,9 +53,11 @@ export default function ({ children }) {
                     <div className="h-screen py-6">
                         <div className="flex h-full overflow-hidden border border-gray-700 rounded-lg shadow">
                             <div className={renderSidebarScreen()}>
-                                <MineProfileChat auth={auth} />
-                                <SearchChatBar />
-                                <ChatListUser />
+                                <MineProfileChat auth={auth}/>
+                                <Menu/>
+                                <SearchChatBar/>
+                                {route().current() === 'chat.index' && <ChatListUser/>}
+                                {route().current() === 'group.index' && <GroupListUser />}
                             </div>
 
                             {children}

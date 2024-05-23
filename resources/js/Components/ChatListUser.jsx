@@ -27,7 +27,7 @@ export default function ChatListUser() {
                     <Link preserveScroll key={user.uuid} href={route('chat.show', user.uuid)}
                           className={clsx(user.id === chatWithUser?.id ? 'bg-gray-800' : 'bg-transparent', 'flex w-full items-center hover:bg-gray-800/60 px-2.5 py-3 rounded-md')}>
                         <div className="items-center mr-3 flex-2">
-                            <ProfilePictureOnChat user={user}/>
+                            <ProfilePictureOnChat entity={user}/>
                         </div>
                         <div className="flex flex-col flex-1 min-w-0 pr-2">
                             <div className="flex items-center justify-between">
