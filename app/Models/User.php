@@ -85,4 +85,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Chat::class, 'sender_id', 'id');
     }
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'user_group', 'user_id', 'group_id');
+    }
 }

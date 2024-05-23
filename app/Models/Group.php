@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Group extends Model
@@ -18,11 +19,11 @@ class Group extends Model
     ];
 
     /**
-     * @return HasMany
+     * @return BelongsToMany
      */
-    public function users(): HasMany
+    public function users(): BelongsToMany
     {
-        return $this->hasMany(User::class, 'user_group');
+        return $this->belongsToMany(User::class, 'user_group', 'group_id', 'user_id');
     }
 
     /**
@@ -30,6 +31,7 @@ class Group extends Model
      */
     public function messages(): HasMany
     {
-        return $this->hasMany(MessageGroup::class, 'message_group');
+        return $this->hasMany(MessageGroup::class, 'group_id', 'id')
+            ->orderBy('created_at', 'desc');
     }
 }
