@@ -1,127 +1,150 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, {Fragment, useEffect, useRef, useState} from 'react';
 import App from "@/Layouts/App.jsx";
-import { Head, usePage } from "@inertiajs/react";
-import HeaderUserChatBox from "@/Components/HeaderUserChatBox.jsx";
+import {Head, Link, usePage} from "@inertiajs/react";
 import ChatInputMessage from "@/Components/ChatInputMessage.jsx";
+import GroupInputMessage from "@/Components/GroupInputMessage.jsx";
+import HeaderUserChatBox from "@/Components/HeaderGroupBox.jsx";
+import {PencilSquareIcon, UserIcon} from "@heroicons/react/20/solid/index.js";
+import {useSettings} from "@/context.jsx";
+import HeaderGroupBox from "@/Components/HeaderGroupBox.jsx";
 import DateChatIndicator from "@/Components/DateChatIndicator.jsx";
-import LeftSideBoxChat from "@/Components/LeftSideBoxChat.jsx";
-import RightSideBoxChat from "@/Components/RightSideBoxChat.jsx";
 
 export default function Show() {
-    const { auth, chat_with: chatWithUser, messages } = usePage().props;
+    const {auth, group_messages: messages, group} = usePage().props;
+    const { settings } = useSettings();
     const scrollRef = useRef(null)
     const [reply, setReply] = useState(null)
-    const [onlineUsers, setOnlineUsers] = useState([])
-    const [isTyping, setIsTyping] = useState(false)
-
-    useEffect(() => {
-        Echo.join('online-users')
-            .here((users) => {
-                setOnlineUsers(users);
-            })
-            .joining((user) => {
-                setOnlineUsers((prev) => [...prev, user]);
-            })
-            .leaving((user) => {
-                setOnlineUsers((prev) => prev.filter((u) => u.id !== user.id));
-            });
-    }, []);
-
-    const replyHandleState = (message) => {
-        setReply(message)
-    }
+    const [isTyping, setIsTyping] = useState(null)
+    const [isEdit, setIsEdit] = useState(false);
 
     useEffect(() => {
         scrollRef.current?.scrollTo(0, scrollRef.current?.scrollHeight)
     }, [messages, reply])
 
-    Echo.private('message.' + auth.user.uuid)
-        .listenForWhisper('typing', () => {
-            setIsTyping(true);
-
-            setTimeout(() => {
-                setIsTyping(false);
-            }, 2000)
-        });
-
-    const renderMessage = (messages, auth) => {
-        return messages.map((date) => (
-            <Fragment key={date.date}>
-                <DateChatIndicator date={date.date} />
-                {date.messages.map((message, idx) => {
-                    const isFirstMessage = idx === 0 || message.sender_id !== date.messages[idx - 1].sender_id;
-                    return <Fragment key={message.id}>
-                    {
-                        message.sender_id === auth.user.id ? (
-                            <RightSideBoxChat message={message} isFirstMessage={isFirstMessage} replyHandleState={replyHandleState}/>
-                        ) : (
-                            <LeftSideBoxChat message={message} isFirstMessage={isFirstMessage} replyHandleState={replyHandleState}/>
-                        )
-                    }
-                    </Fragment>
-                })}
-            </Fragment>
-        ))
+    const replyHandleState = (message) => {
+        setReply(message)
     }
 
+    const formatDate = (date) => {
+        const today = new Date();
+        const messageDate = new Date(date);
+
+        if (messageDate.toDateString() === today.toDateString()) {
+            return 'Сегодня';
+        } else if (messageDate.getDate() === today.getDate() - 1) {
+            return 'Вчера';
+        } else {
+            return messageDate.toLocaleDateString();
+        }
+    };
+
+    const sortedMessages = messages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+    const groupedMessages = sortedMessages.reduce((acc, message) => {
+        const date = formatDate(message.created_at);
+
+        if (!acc[date]) {
+            acc[date] = [];
+        }
+
+        acc[date].push(message);
+
+        return acc;
+    }, {});
     return (
-        <>
-            <Head title="Chat " />
+        <div className="flex flex-col w-full lg:w-2/3">
+            <HeaderGroupBox settings={settings} group={group}/>
 
-            <div className="flex flex-col w-full lg:w-2/3">
-                <div className="px-6 py-5 border-b border-gray-700">
-                    <div className="flex items-center justify-between">
-                        <HeaderUserChatBox
-                            user={chatWithUser}
-                            isOnline={onlineUsers?.find((onlineUser) => onlineUser.id === chatWithUser.id)}
-                            isTyping={isTyping}
-                        />
-                        <div className="pr-5">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-3.5 h-3.5 lg:w-5 lg:h-5 text-white">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
+            <div className="flex-1 h-screen px-2 pb-5 overflow-y-scroll lg:px-8">
+                <div className="grid grid-cols-12">
+                    {Object.keys(groupedMessages).map((date, index) => (
+                        <React.Fragment key={index}>
+                            <DateChatIndicator date={date} settings={settings} />
+                            {groupedMessages[date].map((message, index) => (
+                                <div
+                                    key={index}
+                                    className={`col-span-12 ${message.user_id === auth.user.id ? 'text-right' : 'text-left'}`}
+                                >
+                                    <div
+                                        className={`inline-block my-2 p-2 text-gray-400 rounded-lg relative group ${message.user_id === auth.user.id ? 'self-end' : 'self-start'}`}
+                                    >
+                                        {!message.deleted_at ? (
+                                            <div className="break-all whitespace-pre-wrap">
+                                                <p className="text-left text-[9px] lg:text-[10px] text-gray-400/70" style={{ color: settings.chat_text_color }}>{!(message.user_name === auth.user.name) ? message.user_name : 'Вы'}</p>
+                                                <p className="text-justify mb-2 max-w-xl whitespace-normal" style={{ color: settings.chat_text_color }}>{message.message}</p>
+                                                <div className="text-[9px] lg:text-[10px] text-gray-400/70 mt-1" style={{ color: settings.chat_text_color }}>
+                                                    {message.created_at.match(/\d{2}:\d{2}:\d{2}/)}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div
+                                                className="flex items-center justify-center mr-1 text-xs italic text-center select-none" style={{ color: settings.chat_text_color }}>
+                                                Сообщение удалено
+                                            </div>
+                                        )}
+                                        <div
+                                            className={`absolute top-0 bottom-0 ${message.user_id === auth.user.id ? 'left-0 -ml-14' : 'right-0 -mr-14'} flex flex-row items-center justify-center text-xs text-gray-700 opacity-0 group-hover:opacity-100`}
+                                        >
+                                            <button className="mr-1" onClick={() => replyHandleState(message)}>
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 100 100"
+                                                    id="reply"
+                                                    fill="currentColor"
+                                                    className="w-5 h-5"
+                                                >
+                                                    <path
+                                                        d="M13.6 39.4l28 28c1.3 1.3 3.4.4 3.4-1.4V51.8c.6 0 1.2-.1 1.7-.1 12.8 0 23.2 10.3 23.2 22.9 0 5.2-1.8 9.7-5.4 14-1.4 1.6.5 4.1 2.4 3.1C79.5 85.3 87 73.4 87 59.9c0-20.2-16.7-36.5-37.3-36.5-1.6 0-3.3.1-4.7.3V10c0-1.8-2.1-2.7-3.4-1.4l-28 28c-.8.8-.8 2 0 2.8zm4.2-1.4L41 14.8V26c0 1.2 1.1 2.2 2.4 2 1.6-.3 4-.7 6.4-.7C68.1 27.3 83 41.9 83 59.9c0 9.1-3.9 17.5-10.7 23.4 1-2.7 1.6-5.6 1.6-8.6 0-14.9-12.2-26.9-27.2-26.9-3.1 0-5.7 0-5.7 2.2v11.2L17.8 38z"/>
+                                                    <path d="M384-510v1684h-1784V-510H384m8-8h-1800v1700H392V-518z"/>
+                                                </svg>
+                                            </button>
+                                            {
+                                                message.user_id === auth.user.id
+                                                &&
+                                                <>
+                                                    <button onClick={() => setIsEdit(true)}>
+                                                        <PencilSquareIcon width={16} height={16}/>
+                                                    </button>
+                                                    <Link as="button" method="delete"
+                                                          href={route('group.message.destroy', {message: message.id})}>
 
-                <div className="flex-1 h-screen px-2 pb-5 overflow-y-scroll lg:px-8" ref={scrollRef}>
-                    <div className="grid grid-cols-12">
-                        { renderMessage(messages, auth) }
-                    </div>
-                </div>
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            fill="none"
+                                                            viewBox="0 0 24 24"
+                                                            strokeWidth={1.5}
+                                                            stroke="currentColor"
+                                                            className="w-4 h-4"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                                                            />
+                                                        </svg>
+                                                    </Link>
+                                                </>
+                                            }
 
-                <div className={`transform transition-transform ${reply ? 'translate-y-0' : 'translate-y-full'} duration-150 ease-in-out`}>
-                    {reply && (
-                        <div className="flex items-center py-2 border-t border-gray-700 px-9">
-                            <div className="flex items-center justify-between w-full px-2 py-1.5 bg-gray-700/50 border-gray-600 border-l-4 rounded">
-                                <div className="text-[10px] lg:text-xs">
-                                    <div className="mb-1 text-purple-400">
-                                        {reply.sender_id === auth.user.id ? 'You' : chatWithUser.name}
-                                    </div>
-                                    <div className="overflow-hidden text-gray-300/80" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
-                                        <div className="whitespace-pre-wrap">{reply.message}</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <button onClick={() => replyHandleState(null)} className="w-6 h-6 text-gray-500 transition duration-300 rounded-full hover:text-gray-400 focus:outline-none">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                <div className="flex px-6 py-1.5 border-t border-gray-700 z-50">
-                    <ChatInputMessage
-                        reply={reply}
-                        setReply={setReply}
-                        setIsTyping={setIsTyping}
-                    />
+                            ))}
+                        </React.Fragment>
+                    ))}
                 </div>
             </div>
-        </>
-    )
+            <div className="flex px-6 py-1.5 border-t border-gray-700 z-50">
+                <GroupInputMessage
+                    reply={reply}
+                    setReply={setReply}
+                    setIsTyping={setIsTyping}
+                    isEdit={isEdit}
+                    setIsEdit={setIsEdit}
+                />
+            </div>
+        </div>
+    );
 }
 
 Show.layout = (page) => <App children={page}/>;

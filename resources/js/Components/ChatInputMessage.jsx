@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useForm, usePage } from "@inertiajs/react";
 
 export default function ChatInputMessage(props) {
+    const {settings} = props;
     const { chat_with: chatWithUser } = usePage().props;
     const { data, setData, reset, post, processing } = useForm({
         message: '',
@@ -63,7 +64,7 @@ export default function ChatInputMessage(props) {
                     onChange={handleInputChange}
                     onKeyDown={customKeyEvent}
                     onKeyUp={onTyping}
-                    style={{ maxHeight: '100px', resize: 'none', overflowY: data.message ? 'auto' : 'hidden' }}
+                    style={{ color: settings.chat_text_color, '::placeholder': { color: settings.chat_text_color }, maxHeight: '100px', resize: 'none', overflowY: data.message ? 'auto' : 'hidden' }}
                 />
 
                 <button type="submit" disabled={processing} className="flex items-center justify-center w-8 h-8 -mt-1 text-gray-500 transition duration-150 rotate-45 rounded-full lg:w-10 lg:h-10 hover:text-gray-400 focus:outline-none">

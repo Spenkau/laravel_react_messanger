@@ -6,14 +6,16 @@ import ChatInputMessage from "@/Components/ChatInputMessage.jsx";
 import DateChatIndicator from "@/Components/DateChatIndicator.jsx";
 import LeftSideBoxChat from "@/Components/LeftSideBoxChat.jsx";
 import RightSideBoxChat from "@/Components/RightSideBoxChat.jsx";
+import {useSettings} from "@/context.jsx";
 
 export default function Show() {
     const { auth, chat_with: chatWithUser, messages } = usePage().props;
     const scrollRef = useRef(null)
+    const {settings} = useSettings();
     const [reply, setReply] = useState(null)
     const [onlineUsers, setOnlineUsers] = useState([])
     const [isTyping, setIsTyping] = useState(false)
-
+    console.log("SETTINGS", settings)
     useEffect(() => {
         Echo.join('online-users')
             .here((users) => {
@@ -47,15 +49,15 @@ export default function Show() {
     const renderMessage = (messages, auth) => {
         return messages.map((date) => (
             <Fragment key={date.date}>
-                <DateChatIndicator date={date.date} />
+                <DateChatIndicator date={date.date} settings={settings} />
                 {date.messages.map((message, idx) => {
                     const isFirstMessage = idx === 0 || message.sender_id !== date.messages[idx - 1].sender_id;
                     return <Fragment key={message.id}>
                     {
                         message.sender_id === auth.user.id ? (
-                            <RightSideBoxChat message={message} isFirstMessage={isFirstMessage} replyHandleState={replyHandleState}/>
+                            <RightSideBoxChat settings={settings} message={message} isFirstMessage={isFirstMessage} replyHandleState={replyHandleState}/>
                         ) : (
-                            <LeftSideBoxChat message={message} isFirstMessage={isFirstMessage} replyHandleState={replyHandleState}/>
+                            <LeftSideBoxChat settings={settings} message={message} isFirstMessage={isFirstMessage} replyHandleState={replyHandleState}/>
                         )
                     }
                     </Fragment>
@@ -66,12 +68,13 @@ export default function Show() {
 
     return (
         <>
-            <Head title="Chat " />
+            <Head title="Чат " />
 
             <div className="flex flex-col w-full lg:w-2/3">
                 <div className="px-6 py-5 border-b border-gray-700">
                     <div className="flex items-center justify-between">
                         <HeaderUserChatBox
+                            settings={settings}
                             user={chatWithUser}
                             isOnline={onlineUsers?.find((onlineUser) => onlineUser.id === chatWithUser.id)}
                             isTyping={isTyping}
@@ -96,7 +99,7 @@ export default function Show() {
                             <div className="flex items-center justify-between w-full px-2 py-1.5 bg-gray-700/50 border-gray-600 border-l-4 rounded">
                                 <div className="text-[10px] lg:text-xs">
                                     <div className="mb-1 text-purple-400">
-                                        {reply.sender_id === auth.user.id ? 'You' : chatWithUser.name}
+                                        {reply.sender_id === auth.user.id ? 'Вы' : chatWithUser.name}
                                     </div>
                                     <div className="overflow-hidden text-gray-300/80" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
                                         <div className="whitespace-pre-wrap">{reply.message}</div>
@@ -114,6 +117,7 @@ export default function Show() {
 
                 <div className="flex px-6 py-1.5 border-t border-gray-700 z-50">
                     <ChatInputMessage
+                        settings={settings}
                         reply={reply}
                         setReply={setReply}
                         setIsTyping={setIsTyping}

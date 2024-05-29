@@ -10,7 +10,7 @@ export default function ProfilePictureOnChat({entity}) {
                 <div className="inline-block relative">
                     {
                         entity instanceof Array
-                            ? <img src={entity[0]} alt={entity[1]} className={roundClasses} />
+                            ? <img src={entity[0]} className={roundClasses} />
                             :
                             <span className={roundClasses}>
                                 <span className="font-medium leading-none text-white">

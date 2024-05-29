@@ -2,29 +2,29 @@ import clsx from 'clsx';
 import React from 'react';
 import { Link, usePage } from "@inertiajs/react";
 
-export default function RightSideBoxChat({ message, isFirstMessage, replyHandleState }) {
+export default function RightSideBoxChat({ settings, message, isFirstMessage, replyHandleState }) {
     const { auth } = usePage().props;
-
+    console.log('ST', settings)
     return (
         <>
             {/* Right Side Box Chat */}
             <div className="col-start-6 col-end-13 p-1">
                 <div className="relative flex flex-row-reverse group">
-                    <div className={clsx(message.message_deleted_at ? '' : 'lg:pr-20', "px-3 py-2 text-xs text-gray-300 bg-gray-800 rounded-md lg:text-sm")}>
+                    <div className={clsx(message.message_deleted_at ? '' : 'lg:pr-20', "px-3 py-2 text-xs text-gray-300 rounded-md lg:text-sm")}>
 
                         {/* Replied Chat */}
                         {message.reply && !message.message_deleted_at && (
                             <div className="max-w-full px-2 py-1.5 mb-1.5 bg-gray-700/50 border-gray-600 border-l-4 rounded">
                                 <div className="text-[10px] lg:text-xs">
-                                    <div className="mb-1 text-purple-400">
-                                        {message.reply.sender_id === auth.user.id ? 'You' : message.reply.sender_name}
+                                    <div className="mb-1 text-purple-400" style={{color: settings.chat_text_color}}>
+                                        {message.reply.sender_id === auth.user.id ? 'Вы' : message.reply.sender_name}
                                     </div>
                                     {!message.reply.message_deleted_at ? (
                                         <div className="overflow-hidden text-gray-300/80" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
-                                            <div className="break-all whitespace-pre-wrap">{message.reply.message}</div>
+                                            <div className="break-all whitespace-pre-wrap" style={{color: settings.chat_text_color}}>{message.reply.message}</div>
                                         </div>
                                     ) : (
-                                        <div className="flex items-center mr-1 text-xs italic text-center select-none text-gray-400/60">{message.reply.message}</div>
+                                        <div className="flex items-center mr-1 text-xs italic text-center select-none text-gray-400/60" style={{color: settings.chat_text_color}}>{message.reply.message}</div>
                                     )}
                                 </div>
                             </div>
@@ -32,8 +32,8 @@ export default function RightSideBoxChat({ message, isFirstMessage, replyHandleS
 
                         {/* Chat Body */}
                         {!message.message_deleted_at ?
-                            (<div className="break-all whitespace-pre-wrap">{message.message}</div>)
-                            : (<div className="flex items-center justify-center mr-1 text-xs italic text-center select-none text-gray-400/60">{message.message}</div>)
+                            (<div className="break-all whitespace-pre-wrap" style={{color: settings.chat_text_color}}>{message.message}</div>)
+                            : (<div className="flex items-center justify-center mr-1 text-xs italic text-center select-none text-gray-400/60" style={{color: settings.chat_text_color}}>{message.message}</div>)
                         }
 
                         {/* Chat Timestamp */}

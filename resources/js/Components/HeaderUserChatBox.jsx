@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from "@inertiajs/react";
 
-export default function HeaderUserChatBox({ user, isOnline, isTyping }) {
+export default function HeaderUserChatBox({ user, isOnline, isTyping, settings }) {
     return (
         <>
             <div className="flex items-center">
@@ -18,10 +18,10 @@ export default function HeaderUserChatBox({ user, isOnline, isTyping }) {
                     </span>
                 </div>
                 <div className="flex flex-col flex-1 min-w-0 ml-4">
-                    <div className="text-xs lg:text-sm font-medium text-gray-100 truncate">
+                    <div className="text-xs lg:text-sm font-medium text-gray-100 truncate" style={{ color: settings.chat_text_color }}>
                         {user.name}
                     </div>
-                    <div className="text-gray-400 text-[10px] lg:text-xs truncate mt-0.5 tracking-tight">
+                    <div className="text-gray-400 text-[10px] lg:text-xs truncate mt-0.5 tracking-tight" style={{ color: settings.chat_text_color }}>
                         {
                             isTyping ? `${user.name} is typing...` : (
                                 isOnline ? 'Online' : `${user.last_seen_at}`

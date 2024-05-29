@@ -8,20 +8,19 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class NewMessageEvent implements ShouldBroadcastNow
+class NewGroupMessageEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $message;
+    public MessageGroup $message;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($message)
+    public function __construct(MessageGroup $message)
     {
         $this->message = $message;
     }
@@ -34,7 +33,7 @@ class NewMessageEvent implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('message.' . $this->message->receiver->uuid),
+            new PrivateChannel('channel-name'),
         ];
     }
 }

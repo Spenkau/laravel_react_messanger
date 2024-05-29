@@ -6,7 +6,7 @@ import { Link } from "@inertiajs/react";
 import axios from "axios";
 import { debounce } from 'lodash';
 
-export default function SearchChatBar() {
+export default function SearchChatBar({ settings }) {
     const [query, setQuery] = useState('')
     const [open, setOpen] = useState(false)
     const [users, setUsers] = useState([])
@@ -43,7 +43,7 @@ export default function SearchChatBar() {
                             <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd"/>
                         </svg>
                     </div>
-                    <button type="button" onClick={() => setOpen(true)} className="block w-full h-full px-4 py-2 text-xs text-gray-400 bg-gray-800 border border-gray-700 rounded-md focus:ring-gray-700 focus:border-gray-700 pl-9">
+                    <button style={{color: settings.sidebar_text_color}} type="button" onClick={() => setOpen(true)} className="block w-full h-full px-4 py-2 text-xs text-gray-400 bg-transparent border border-gray-700 rounded-md focus:ring-gray-700 focus:border-gray-700 pl-9">
                         Search or start a new chat
                     </button>
                 </div>

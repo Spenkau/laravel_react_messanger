@@ -4,30 +4,30 @@ import ProfilePictureOnChat from "@/Components/ProfilePictureOnChat.jsx";
 import clsx from "clsx";
 import {UserCircleIcon} from "@heroicons/react/24/outline/index.js";
 
-export default function GroupListUser() {
+export default function GroupListUser({ settings }) {
     const { props } = usePage();
-    const {data: groups} = props.groups;
-    // let {group: currentGroup, auth} = props;
+    const {data: groups} = props?.groups;
 
+    // let {group: currentGroup, auth} = props;
 
     // const {data: users} = props.users;
     // const [selectedGroup, setSelectedGroup] = useState(null);
     console.log(groups)
     return (
         <>
-            <div className="flex-1 mt-3 overflow-y-auto" scroll-region="true">
+            <div className="flex-1 mt-3 text-black overflow-y-auto" scroll-region="true" >
                 {groups.map((group) => (
                     <Link preserveScroll key={group.id} href={route('group.show', group.id)} className='flex w-full items-center hover:bg-gray-800/60 px-2.5 py-3 rounded-md'>
                           {/*// className={clsx(currentGroup.id === group?.id ? 'bg-gray-800' : 'bg-transparent', 'flex w-full items-center hover:bg-gray-800/60 px-2.5 py-3 rounded-md')}>*/}
                         <div className="items-center mr-3 flex-2">
-                            <ProfilePictureOnChat entity={[group.image_url, group.name] ?? group}/>
+                            <ProfilePictureOnChat entity={group}/>
                         </div>
                         <div className="flex flex-col flex-1 min-w-0 pr-2">
                             <div className="flex items-center justify-between">
-                                <div className="text-gray-100 text-sm font-medium truncate mb-1.5">
+                                <div className="text-gray-100 text-sm font-medium truncate mb-1.5" style={{color: settings.sidebar_text_color}}>
                                     {group.name}
                                 </div>
-                                <div className="text-white flex gap-0.5 items-center">
+                                <div className="text-white flex gap-0.5 items-center" style={{color: settings.sidebar_text_color}}>
                                     <UserCircleIcon height={20} width={20} />
                                     { group.users.length }
                                 </div>

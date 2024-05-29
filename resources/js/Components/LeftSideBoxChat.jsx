@@ -2,7 +2,7 @@ import React from 'react';
 import { usePage } from "@inertiajs/react";
 import clsx from "clsx";
 
-export default function ({ message, isFirstMessage, replyHandleState }) {
+export default function ({ settings, message, isFirstMessage, replyHandleState }) {
     const { auth } = usePage().props;
 
     return (
@@ -10,21 +10,21 @@ export default function ({ message, isFirstMessage, replyHandleState }) {
             {/* Left Side Box Chat */}
             <div className="col-start-1 col-end-9 p-1">
                 <div className="relative flex flex-row group">
-                    <div className={clsx(message.message_deleted_at ? '' : 'lg:pr-12', "py-2 pl-3 pr-3 text-xs text-gray-300 bg-gray-800 rounded-md lg:text-sm")}>
+                    <div className={clsx(message.message_deleted_at ? '' : 'lg:pr-12', "py-2 pl-3 pr-3 text-xs text-gray-300 rounded-md lg:text-sm")}>
 
                         {/* Replied Chat */}
                         {message.reply && !message.message_deleted_at && (
                             <div className="max-w-full px-2 py-1.5 mb-1.5 bg-gray-700/50 border-gray-600 border-l-4 rounded">
                                 <div className="text-[10px] lg:text-xs">
-                                    <div className="mb-1 text-purple-400">
-                                        {message.reply.sender_id === auth.user.id ? 'You' : message.reply.sender_name}
+                                    <div className="mb-1 text-purple-400" style={{color: settings.chat_text_color}}>
+                                        {message.reply.sender_id === auth.user.id ? 'Вы' : message.reply.sender_name}
                                     </div>
                                     {!message.reply.message_deleted_at ? (
                                         <div className="overflow-hidden text-gray-300/80" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
-                                            <div className="break-all whitespace-pre-wrap">{message.reply.message}</div>
+                                            <div className="break-all whitespace-pre-wrap" style={{color: settings.chat_text_color}}>{message.reply.message}</div>
                                         </div>
                                     ) : (
-                                        <div className="flex items-center mr-1 text-xs italic text-center select-none text-gray-400/60">{message.reply.message}</div>
+                                        <div className="flex items-center mr-1 text-xs italic text-center select-none text-gray-400/60" style={{color: settings.chat_text_color}}>{message.reply.message}</div>
                                     )}
                                 </div>
                             </div>
@@ -32,14 +32,14 @@ export default function ({ message, isFirstMessage, replyHandleState }) {
 
                         {/* Chat Body */}
                         {!message.message_deleted_at ?
-                            (<div className="break-all whitespace-pre-wrap">{message.message}</div>)
-                            : (<div className="flex items-center justify-center mr-1 text-xs italic text-center select-none text-gray-400/60">{message.message}</div>)
+                            (<div className="break-all whitespace-pre-wrap" style={{color: settings.chat_text_color}}>{message.message}</div>)
+                            : (<div className="flex items-center justify-center mr-1 text-xs italic text-center select-none text-gray-400/60" style={{color: settings.chat_text_color}}>{message.message}</div>)
                         }
 
                         {/* Chat Timestamp */}
                         {!message.message_deleted_at && (
                             <div className="flex items-center justify-end lg:-mt-2.5 lg:-mr-9">
-                                <div className="text-[9px] lg:text-[10px] text-gray-400/70">
+                                <div className="text-[9px] lg:text-[10px] text-gray-400/70" style={{color: settings.chat_text_color}}>
                                     {message.sent_at}
                                 </div>
                             </div>
@@ -61,7 +61,7 @@ export default function ({ message, isFirstMessage, replyHandleState }) {
 
                     {
                         isFirstMessage && (
-                            <div className="absolute top-0 w-4 h-4 bg-gray-800 rounded-bl-full -left-2"></div>
+                            <div className="absolute top-0 w-4 h-4 rounded-bl-full -left-2"></div>
                         )
                     }
                 </div>

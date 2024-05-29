@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import MineProfileChat from "@/Components/MineProfileChat.jsx";
 import SearchChatBar from "@/Components/SearchChatBar.jsx";
 import ChatListUser from "@/Components/ChatListUser.jsx";
@@ -7,11 +7,21 @@ import {debounce} from "lodash";
 import Menu from "@/Components/Menu.jsx";
 import Index from "@/Pages/Group/Index.jsx";
 import GroupListUser from "@/Components/GroupListUser.jsx";
+import GroupMenu from "@/Components/GroupMenu.jsx";
+import {Settings, useSettings} from "@/settings.js";
+import {INITIAL_SETTINGS} from "@/constants.js";
+import {SettingsProvider} from "@/context.jsx";
 
 export default function ({children}) {
-    const {auth} = usePage().props;
+    const props = usePage().props;
+    const {auth} = props;
+    const [settings, setSettings] = useSettings();
 
     useEffect(() => {
+        if (!settings) {
+            setSettings(INITIAL_SETTINGS);
+        }
+
         const debouncedReload = debounce(() => {
             router.reload({
                 preserveScroll: true,
@@ -46,18 +56,35 @@ export default function ({children}) {
         return className;
     }
 
+    const renderChatList = () => {
+        if (route().current().includes('chat')) {
+            return (
+                <>
+                    <SearchChatBar settings={settings} />
+                    <ChatListUser settings={settings} />
+                </>
+            )
+        } else if (route().current().includes('group')) {
+            return (
+                <>
+                    <GroupMenu settings={settings}/>
+                    <GroupListUser settings={settings}/>
+                </>
+            )
+        }
+    }
+
     return (
-        <>
-            <div className="relative min-h-screen bg-gray-900 selection:bg-red-500 selection:text-white">
+        <SettingsProvider>
+            <div className="relative min-h-screen selection:bg-red-500 selection:text-white" style={{"backgroundColor": settings.background}}>
                 <div className="px-6 mx-auto max-w-screen-2xl xl:px-0">
                     <div className="h-screen py-6">
                         <div className="flex h-full overflow-hidden border border-gray-700 rounded-lg shadow">
-                            <div className={renderSidebarScreen()}>
-                                <MineProfileChat auth={auth}/>
-                                <Menu/>
-                                <SearchChatBar/>
-                                {route().current() === 'chat.index' && <ChatListUser/>}
-                                {route().current() === 'group.index' && <GroupListUser />}
+                            <div className={renderSidebarScreen()} style={{color: settings.sidebar_text_color}}>
+                                <MineProfileChat auth={auth} settings={settings} setSettings={setSettings}/>
+                                <Menu settings={settings} setSettings={setSettings}/>
+                                {/*<ChatListUser />*/}
+                                {renderChatList()}
                             </div>
 
                             {children}
@@ -67,6 +94,6 @@ export default function ({children}) {
                 </div>
             </div>
 
-        </>
+        </SettingsProvider>
     )
 }

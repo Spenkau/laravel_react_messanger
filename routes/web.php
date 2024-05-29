@@ -57,7 +57,7 @@ Route::middleware(['auth', 'user.last.seen.at'])->group(function () {
         ->controller(ChatController::class)
         ->group(function () {
             Route::get('', 'index')->name('chat.index');
-            Route::delete('delete/{chat}','destroy')->name('chat.destroy');
+            Route::delete('delete/{chat}', 'destroy')->name('chat.destroy');
             Route::prefix('{user:uuid}')
                 ->group(function () {
                     Route::get('', 'show')->name('chat.show');
@@ -67,11 +67,20 @@ Route::middleware(['auth', 'user.last.seen.at'])->group(function () {
 
     Route::prefix('group')
         ->controller(GroupController::class)
+        ->name('group.')
         ->group(function () {
-        Route::get('', 'index')->name('group.index');
-        Route::get('{id}', 'show')->name('group.show');
-    });
+            Route::get('', 'index')->name('index');
+            Route::get('{id}', 'show')->name('show');
+            Route::post('', 'store')->name('store');
+            Route::prefix('message')
+                ->name('message.')
+                ->group(function () {
+                    Route::post('store', 'storeMessage')->name('store');
+                    Route::patch('update', 'updateMessage')->name('update');
+                    Route::delete('delete/{message}', 'destroyMessage')->name('destroy');
+                });
+        });
 
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
