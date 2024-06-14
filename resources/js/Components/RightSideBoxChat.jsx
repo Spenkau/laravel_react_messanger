@@ -4,11 +4,10 @@ import { Link, usePage } from "@inertiajs/react";
 
 export default function RightSideBoxChat({ settings, message, isFirstMessage, replyHandleState }) {
     const { auth } = usePage().props;
-    console.log('ST', settings)
     return (
         <>
             {/* Right Side Box Chat */}
-            <div className="col-start-6 col-end-13 p-1">
+            <div className="col-start-6 col-end-13 p-1 border-black rounded-2xl">
                 <div className="relative flex flex-row-reverse group">
                     <div className={clsx(message.message_deleted_at ? '' : 'lg:pr-20', "px-3 py-2 text-xs text-gray-300 rounded-md lg:text-sm")}>
 
@@ -67,7 +66,7 @@ export default function RightSideBoxChat({ settings, message, isFirstMessage, re
                         </div>
                     )}
 
-                    {isFirstMessage && <div className="absolute top-0 w-4 h-4 bg-gray-800 rounded-br-full -right-2"></div>}
+                    {/*{isFirstMessage && <div className="absolute top-0 w-4 h-4 bg-gray-800 rounded-br-full -right-2"></div>}*/}
                 </div>
             </div>
         </>

@@ -40,8 +40,9 @@ export default function GroupMenu({ settings }) {
     const handleSearchGroups = debounce(async (term) => {
         if (term) {
             try {
-                const response = await axios.get(`/group?title=${term}`);
-                setSearchResults(response.data);
+                const response = await axios.get(`/group/search?title=${term}`);
+                console.log('srch', response.data)
+                setSearchResults(response.data.data);
             } catch (error) {
                 console.error(error);
             }
@@ -53,7 +54,7 @@ export default function GroupMenu({ settings }) {
     useEffect(() => {
         handleSearchGroups(searchTerm);
     }, [searchTerm]);
-
+    console.log(searchResults)
     return (
         <>
             <div className="flex justify-between p-4">

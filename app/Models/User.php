@@ -94,4 +94,19 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Group::class, 'user_group', 'user_id', 'group_id');
     }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function friends(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_friend', 'user_id', 'friend_id')
+            ->where('is_accepted', '=', true);
+    }
+
+    public function friendRequest(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_friend', 'friend_id', 'user_id')
+            ->where('is_accepted', '=', false);
+    }
 }

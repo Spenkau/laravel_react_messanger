@@ -22,10 +22,19 @@ export default function Authenticated({ user, header, children }) {
 
                             <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                    Dashboard
+                                    Главная
                                 </NavLink>
                                 <NavLink href={route('chat.index')} active={route().current('chat.*')}>
-                                    Chats
+                                    Чаты
+                                </NavLink>
+                                <NavLink href={route('group.index')} active={route().current('group.*')}>
+                                    Группы
+                                </NavLink>
+                                <NavLink href={route('friend.index')} active={route().current('friend.*')}>
+                                    Друзья
+                                </NavLink>
+                                <NavLink href={route('about-us')} active={route().current('about-us')}>
+                                    О приложении
                                 </NavLink>
                             </div>
                         </div>
@@ -58,9 +67,9 @@ export default function Authenticated({ user, header, children }) {
                                     </Dropdown.Trigger>
 
                                     <Dropdown.Content>
-                                        <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
+                                        <Dropdown.Link href={route('profile.edit')}>Профиль</Dropdown.Link>
                                         <Dropdown.Link href={route('logout')} method="post" as="button">
-                                            Log Out
+                                            Выйти
                                         </Dropdown.Link>
                                     </Dropdown.Content>
                                 </Dropdown>

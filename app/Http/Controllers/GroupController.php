@@ -23,21 +23,25 @@ class GroupController extends Controller
         ]);
     }
 
-    public function show(int $id)
+    public function search(Request $request)
+    {
+        return response()->json(GroupCollection::make($this->getUserGroups($request->query())));
+    }
+
+    public function show(int $id, Request $request)
     {
         $selectedGroup = Group::find($id);
 
 
         return inertia('Group/Show', [
             'group' => $selectedGroup,
-            'groups' => GroupCollection::make($this->getUserGroups()),
+            'groups' => GroupCollection::make($this->getUserGroups($request->query())),
             'group_messages' => MessageGroup::query()
-                ->where('group_id', '=', 2)
+                ->where('group_id', '=', $selectedGroup->id)
                 ->join('users', 'message_group.user_id', '=', 'users.id')
                 ->select('message_group.*', 'users.name as user_name')
                 ->orderBy('created_at', 'desc')
                 ->get(),
-            ''
         ]);
     }
 
@@ -78,16 +82,16 @@ class GroupController extends Controller
     }
 
     /**
-     * @param array|null $query
+     * @param array|string|null $query
      * @return Collection
      */
-    public function getUserGroups(array|null $query = null): Collection
+    public function getUserGroups(array|string|null $query = null)
     {
-        return Group::when(
+        return Group::query()->when(
             $query,
             fn($q) => $q->filter($query)
         )->whereHas('users', function($query) {
-            $query->where('user_id', 51);
+            $query->where('user_id', Auth::id());
         })->with('users')->get();
     }
 

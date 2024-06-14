@@ -44,6 +44,10 @@ export default function GroupInputMessage(props) {
         });
     }
 
+    useEffect(() => {
+
+    }, [props.selectedMessage]);
+
     // const onTyping = () => {
     //     setTimeout(() => {
     //         Echo.private(`message.${chatWithUser.uuid}`)
@@ -60,7 +64,7 @@ export default function GroupInputMessage(props) {
                     name="message"
                     id="message"
                     autoComplete="off"
-                    className="flex-1 py-1.5 text-xs lg:text-sm text-white bg-transparent border-0 rounded-md focus:ring-0"
+                    className="flex-1 py-1.5 text-xs lg:text-sm bg-transparent border-0 rounded-md focus:ring-0"
                     placeholder="Type a message"
                     value={data.message}
                     rows={1}

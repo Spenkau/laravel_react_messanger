@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\FriendController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Group;
@@ -29,7 +30,7 @@ Route::get('test', function () {
         ->where('group_id', '=', 2)
         ->join('users', 'message_group.user_id', '=', 'users.id')
         ->select('message_group.*', 'users.name as user_name')
-        ->orderBy('created_at', 'asc')
+        ->orderBy('created_at', 'desc')
         ->get();
 
     return response()->json(['groups' => $messages]);
@@ -43,6 +44,10 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 });
+
+Route::get('/about-us', function () {
+    return Inertia::render('AboutUs');
+})->name('about-us');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -70,6 +75,7 @@ Route::middleware(['auth', 'user.last.seen.at'])->group(function () {
         ->name('group.')
         ->group(function () {
             Route::get('', 'index')->name('index');
+            Route::get('/search', 'search')->name('search');
             Route::get('{id}', 'show')->name('show');
             Route::post('', 'store')->name('store');
             Route::prefix('message')
@@ -81,6 +87,17 @@ Route::middleware(['auth', 'user.last.seen.at'])->group(function () {
                 });
         });
 
+
+    Route::prefix('friend')
+        ->controller(FriendController::class)
+        ->name('friend.')
+        ->group(function () {
+            Route::get('', 'index')->name('index');
+            Route::get('{name}', 'show')->name('show');
+            Route::get('bid', 'showBids')->name('bid');
+            Route::post('', 'store')->name('store');
+            Route::delete('{id}', 'destroy')->name('delete');
+        });
 });
 
 require __DIR__ . '/auth.php';

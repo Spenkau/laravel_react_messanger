@@ -11,7 +11,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             href={route('chat.index')}
                             className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline-0"
                         >
-                            Chats
+                            Чаты
                         </Link>
                     ) : (
                         <>
@@ -19,14 +19,14 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                 href={route('login')}
                                 className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline-0"
                             >
-                                Log in
+                                Войти
                             </Link>
 
                             <Link
                                 href={route('register')}
                                 className="ml-4 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline-0"
                             >
-                                Register
+                                Регистрация
                             </Link>
                         </>
                     )}

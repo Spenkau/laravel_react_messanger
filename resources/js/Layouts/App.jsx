@@ -5,14 +5,14 @@ import ChatListUser from "@/Components/ChatListUser.jsx";
 import {router, usePage} from "@inertiajs/react";
 import {debounce} from "lodash";
 import Menu from "@/Components/Menu.jsx";
-import Index from "@/Pages/Group/Index.jsx";
 import GroupListUser from "@/Components/GroupListUser.jsx";
 import GroupMenu from "@/Components/GroupMenu.jsx";
-import {Settings, useSettings} from "@/settings.js";
+import {useSettings} from "@/settings.js";
 import {INITIAL_SETTINGS} from "@/constants.js";
 import {SettingsProvider} from "@/context.jsx";
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
-export default function ({children}) {
+export default function App({children}) {
     const props = usePage().props;
     const {auth} = props;
     const [settings, setSettings] = useSettings();
@@ -46,9 +46,9 @@ export default function ({children}) {
         };
     }, []);
 
-    const renderSidebarScreen = () => {
+    const   renderSidebarScreen = () => {
         const currentPath = route().current();
-        let className = "px-5 py-2 pb-5 lg:w-1/3 lg:border-r lg:border-gray-700 "
+        let className = "px-5 py-2 pb-5 lg:w-1/3 lg:border-r lg:border-t rounded lg:border-gray-700 "
 
         if (currentPath === 'chat.index') className += "flex flex-col w-full"
         else className += "hidden flex-col lg:flex"
@@ -60,8 +60,8 @@ export default function ({children}) {
         if (route().current().includes('chat')) {
             return (
                 <>
-                    <SearchChatBar settings={settings} />
-                    <ChatListUser settings={settings} />
+                    <SearchChatBar settings={settings}/>
+                    <ChatListUser settings={settings}/>
                 </>
             )
         } else if (route().current().includes('group')) {
@@ -73,27 +73,33 @@ export default function ({children}) {
             )
         }
     }
-
+    console.log(route().current())
     return (
-        <SettingsProvider>
-            <div className="relative min-h-screen selection:bg-red-500 selection:text-white" style={{"backgroundColor": settings.background}}>
-                <div className="px-6 mx-auto max-w-screen-2xl xl:px-0">
-                    <div className="h-screen py-6">
-                        <div className="flex h-full overflow-hidden border border-gray-700 rounded-lg shadow">
-                            <div className={renderSidebarScreen()} style={{color: settings.sidebar_text_color}}>
-                                <MineProfileChat auth={auth} settings={settings} setSettings={setSettings}/>
-                                <Menu settings={settings} setSettings={setSettings}/>
-                                {/*<ChatListUser />*/}
-                                {renderChatList()}
+        <AuthenticatedLayout
+            user={auth.user}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Общение</h2>}
+        >
+            <SettingsProvider>
+                <div className="relative min-h-screen selection:bg-red-500 selection:text-white"
+                     style={{"backgroundColor": settings.background}}>
+                    <div className="px-6 mx-auto max-w-screen-2xl xl:px-0">
+                        <div className="py-6 bg-violet-50 h-full border border-gray-700 rounded-lg shadow">
+                            <div className="flex">
+                                <div className={renderSidebarScreen()} style={{color: settings.sidebar_text_color}}>
+                                    <MineProfileChat auth={auth} settings={settings} setSettings={setSettings}/>
+                                    <Menu settings={settings} setSettings={setSettings}/>
+                                    {/*<ChatListUser />*/}
+                                    {renderChatList()}
+                                </div>
+                                {children}
                             </div>
-
-                            {children}
-
                         </div>
                     </div>
                 </div>
-            </div>
-
-        </SettingsProvider>
+            </SettingsProvider>
+        </AuthenticatedLayout>
     )
 }
+
+App.layout = (page) => <AuthenticatedLayout children={page}/>;
+

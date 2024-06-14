@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
          \App\Models\User::factory(50)->create();
 
          $this->call([
+             GroupRolesSeeder::class,
              GroupSeeder::class,
              UserGroupSeeder::class,
              MessageGroupSeeder::class

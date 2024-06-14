@@ -35,7 +35,7 @@ export default function SearchChatBar({ settings }) {
         <>
             <div className="px-2.5">
                 <label htmlFor="search" className="sr-only">
-                    Search or start a new chat
+                    Поиск или создание нового чата
                 </label>
                 <div className="relative mt-1 rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" aria-hidden="true">
@@ -44,7 +44,7 @@ export default function SearchChatBar({ settings }) {
                         </svg>
                     </div>
                     <button style={{color: settings.sidebar_text_color}} type="button" onClick={() => setOpen(true)} className="block w-full h-full px-4 py-2 text-xs text-gray-400 bg-transparent border border-gray-700 rounded-md focus:ring-gray-700 focus:border-gray-700 pl-9">
-                        Search or start a new chat
+                        Поиск или создание нового чата
                     </button>
                 </div>
             </div>
@@ -87,7 +87,7 @@ export default function SearchChatBar({ settings }) {
                                 }
                                 <Combobox.Input
                                     className="w-full h-12 pr-4 text-gray-900 placeholder-gray-500 bg-transparent border-0 pl-11 focus:ring-0 sm:text-sm"
-                                    placeholder="Search or start a new chat ..."
+                                    placeholder="Поиск или создание нового чата..."
                                     autoComplete={"off"}
                                     onChange={(event) => setQuery(event.target.value)}
                                 />
