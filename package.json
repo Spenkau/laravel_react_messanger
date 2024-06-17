@@ -26,7 +26,10 @@
         "@heroicons/react": "^2.0.18",
         "@soketi/soketi": "^1.6.0",
         "clsx": "^2.0.0",
+        "date-fns": "^3.6.0",
         "lodash": "^4.17.21",
-        "react-clock": "^5.0.0"
+        "react-clock": "^5.0.0",
+        "react-datepicker": "^7.0.0",
+        "react-toastify": "^10.0.5"
     }
 }

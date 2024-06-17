@@ -6,11 +6,15 @@ const WallClock = () => {
     const [time, setTime] = useState(new Date());
 
     useEffect(() => {
-        const interval = setInterval(() =>  setTime(new Date()), 1000);
+        const interval = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(interval);
     }, []);
 
-    return <Clock value={time} />;
+    return (
+        <div className="flex items-center justify-center">
+            <Clock value={time} size={250} renderNumbers={true} />
+        </div>
+    );
 };
 
 export default WallClock;

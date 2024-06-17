@@ -1,48 +1,40 @@
 import React, { Fragment, useState } from 'react';
-import { Link } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import { Dialog, Transition } from '@headlessui/react';
 import ProfilePictureOnChat from "@/Components/ProfilePictureOnChat.jsx";
-import {PlusCircleIcon} from "@heroicons/react/20/solid/index.js";
+import { PlusCircleIcon } from "@heroicons/react/20/solid/index.js";
 import AddUserToGroupModal from "@/Components/AddUserToGroupModal.jsx";
 
 export default function HeaderGroupBox({ group, isTyping, settings }) {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isAddFriendOpen, setIsAddFriendOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [friends, setFriends] = useState([
-        { id: 1, name: 'Друг 1' },
-        { id: 2, name: 'Друг 2' },
-        { id: 3, name: 'Друг 3' },
-    ]);
-
-    const filteredFriends = friends.filter(friend =>
-        friend.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
     return (
         <>
+            <Head title={'Группы'} />
+
             <div className="flex items-center px-3 py-3 border-gray-700">
                 <Link href={route('group.index')} className="flex lg:hidden items-center -ml-2 mr-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
                          stroke="currentColor" className="w-5 h-5 text-gray-400">
                         <path strokeLinecap="round" strokeLinejoin="round"
-                              d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75"/>
+                              d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
                     </svg>
                 </Link>
                 <div className="relative inline-block">
-                    <ProfilePictureOnChat entity={group.image_url ? [group.image_url, group.name] : group}/>
+                    <ProfilePictureOnChat entity={group.image_url ? [group.image_url, group.name] : group} />
                 </div>
                 <div className="flex flex-col flex-1 min-w-0 ml-4">
                     <div
                         className="text-xs lg:text-sm font-medium text-gray-100 truncate cursor-pointer"
-                        style={{color: settings.chat_text_color}}
+                        style={{ color: settings.chat_text_color }}
                         onClick={() => setIsProfileOpen(true)}
                     >
                         {group.name}
                     </div>
                 </div>
                 <button onClick={() => setIsAddFriendOpen(true)}>
-                    <PlusCircleIcon width={30} height={30} fill='gray'/>
+                    <PlusCircleIcon width={30} height={30} fill='gray' />
                 </button>
             </div>
 
@@ -99,10 +91,9 @@ export default function HeaderGroupBox({ group, isTyping, settings }) {
             <AddUserToGroupModal
                 isAddFriendOpen={isAddFriendOpen}
                 setIsAddFriendOpen={setIsAddFriendOpen}
-                friends={friends}
-                setFriends={setFriends}
-                filteredFriends={filteredFriends}
+                groupId={group.id}
             />
         </>
     )
 }
+

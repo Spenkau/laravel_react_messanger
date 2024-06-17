@@ -54,10 +54,12 @@ export default function Index({ auth }) {
         }
     };
 
+
     const handleFriendRequests = async () => {
         try {
             const response = await axios.get('/friend/bid');
-            setFriendRequests(response.data.data);
+            console.log("DATA", response.data.data.data)
+            setFriendRequests(response.data.data.data);
             setIsFriendRequestsOpen(true);
         } catch (error) {
             console.error('Ошибка:', error);
@@ -66,7 +68,7 @@ export default function Index({ auth }) {
 
     const handleAcceptRequest = async (id) => {
         try {
-            await axios.post('/friend/accept', { id });
+            await axios.post('/friend', { friend_id: id });
             setFriendRequests(friendRequests.filter(request => request.id !== id));
         } catch (error) {
             console.error('Ошибка:', error);

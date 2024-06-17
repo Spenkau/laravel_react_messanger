@@ -1,31 +1,47 @@
-import React, {Fragment, useEffect} from "react";
-import {Dialog, Transition} from "@headlessui/react";
+import React, { Fragment, useEffect, useState } from "react";
+import { Dialog, Transition } from "@headlessui/react";
 import axios from "axios";
 
-export default function AddUserToGroupModal(props) {
-
-    // useEffect(async () => {
-    //     try {
-    //         // const response = await axios.get(`/group?title=${term}`);
-    //         // props.setSearchResults(response.data);
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // }, []);
+export default function AddUserToGroupModal({ isAddFriendOpen, setIsAddFriendOpen, groupId }) {
+    const [friends, setFriends] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const getFriends = async (retry = true) => {
         try {
-            const response = await axios.get(`/friends`);
+            const response = await axios.get(`/friend/json`);
+            console.log("FRS",response.data)
+            setFriends(response.data.data);
         } catch (error) {
-            console.log(error)
-
-            retry && await getFriends(false)
+            console.error('Ошибка получения списка друзей:', error);
+            retry && await getFriends(false);
         }
-    }
+    };
+
+    const handleAddFriend = async (friendId) => {
+        try {
+            await axios.post('/group/add-friend', {
+                group_id: groupId,
+                friend_id: friendId,
+            });
+            setIsAddFriendOpen(false);
+        } catch (error) {
+            console.error('Ошибка добавления друга в группу:', error);
+        }
+    };
+
+    useEffect(() => {
+        if (isAddFriendOpen) {
+            getFriends();
+        }
+    }, [isAddFriendOpen]);
+
+    const filteredFriends = friends.filter(friend =>
+        friend.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
-        <Transition.Root show={props.isAddFriendOpen} as={Fragment}>
-            <Dialog as="div" className="fixed inset-0 z-10 p-4 overflow-y-auto sm:p-6 md:p-20" onClose={props.setIsAddFriendOpen}>
+        <Transition.Root show={isAddFriendOpen} as={Fragment}>
+            <Dialog as="div" className="fixed inset-0 z-10 p-4 overflow-y-auto sm:p-6 md:p-20" onClose={setIsAddFriendOpen}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"
@@ -57,21 +73,19 @@ export default function AddUserToGroupModal(props) {
                                     <div className="mt-2">
                                         <input
                                             type="text"
-                                            // value={props.searchTerm}
-                                            // onChange={(e) => props.setSearchTerm(e.target.value)}
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
                                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                             placeholder="Поиск друзей"
                                         />
-                                        <ul className="mt-4">
-                                            {props.filteredFriends.map(friend => (
-                                                <li key={friend.id} className="py-2">
+                                        <ul className="mt-4 max-h-40 overflow-y-auto">
+                                            {filteredFriends.map(friend => (
+                                                <li key={friend.id} className="py-2 flex justify-between items-center">
                                                     {friend.name}
                                                     <button
                                                         type="button"
                                                         className="ml-2 px-2 py-1 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                                                        onClick={() => {
-                                                            console.log(`Добавить ${friend.name} в группу`);
-                                                        }}
+                                                        onClick={() => handleAddFriend(friend.id)}
                                                     >
                                                         Добавить
                                                     </button>
@@ -83,7 +97,7 @@ export default function AddUserToGroupModal(props) {
                                         <button
                                             type="button"
                                             className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
-                                            onClick={() => props.setIsAddFriendOpen(false)}
+                                            onClick={() => setIsAddFriendOpen(false)}
                                         >
                                             Закрыть
                                         </button>
@@ -96,4 +110,4 @@ export default function AddUserToGroupModal(props) {
             </Dialog>
         </Transition.Root>
     );
-};
+}

@@ -16,7 +16,7 @@ export default function Authenticated({ user, header, children }) {
                         <div className="flex">
                             <div className="shrink-0 flex items-center">
                                 <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
+                                    <ApplicationLogo size={80} />
                                 </Link>
                             </div>
 
@@ -105,10 +105,16 @@ export default function Authenticated({ user, header, children }) {
                 <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
                     <div className="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                            Dashboard
+                            Главная
                         </ResponsiveNavLink>
                         <ResponsiveNavLink href={route('chat.index')} active={route().current('chat.*')}>
-                            Chats
+                            Чаты
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('group.index')} active={route().current('group.*')}>
+                            Группы
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('friend.index')} active={route().current('friend.*')}>
+                            Друзья
                         </ResponsiveNavLink>
                     </div>
 
@@ -119,9 +125,9 @@ export default function Authenticated({ user, header, children }) {
                         </div>
 
                         <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>Profile</ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('profile.edit')}>Профиль</ResponsiveNavLink>
                             <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                                Log Out
+                                Выйти
                             </ResponsiveNavLink>
                         </div>
                     </div>

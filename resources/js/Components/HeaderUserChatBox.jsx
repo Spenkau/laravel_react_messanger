@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import { Link } from "@inertiajs/react";
+import UserData from './UserData';
 
 export default function HeaderUserChatBox({ user, isOnline, isTyping, settings }) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleUserClick = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
+
     return (
         <>
             <div className="flex items-center">
@@ -17,19 +28,21 @@ export default function HeaderUserChatBox({ user, isOnline, isTyping, settings }
                         </span>
                     </span>
                 </div>
-                <div className="flex flex-col flex-1 min-w-0 ml-4">
+                <div className="flex flex-col flex-1 min-w-0 ml-4 cursor-pointer" onClick={handleUserClick}>
                     <div className="text-xs lg:text-sm font-medium text-gray-100 truncate" style={{ color: settings.chat_text_color }}>
                         {user.name}
                     </div>
                     <div className="text-gray-400 text-[10px] lg:text-xs truncate mt-0.5 tracking-tight" style={{ color: settings.chat_text_color }}>
                         {
-                            isTyping ? `${user.name} is typing...` : (
-                                isOnline ? 'Online' : `${user.last_seen_at}`
+                            isTyping ? `${user.name} набирает сообщение...` : (
+                                isOnline ? 'В сети' : `${user.last_seen_at}`
                             )
                         }
                     </div>
                 </div>
             </div>
+
+            {isModalOpen && <UserData userId={user.id} onClose={handleCloseModal} />}
         </>
-    )
+    );
 }

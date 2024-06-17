@@ -1,13 +1,16 @@
 <?php
 
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Resources\UserResource;
 use App\Models\Group;
 use App\Models\MessageGroup;
 use App\Models\User;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -49,9 +52,9 @@ Route::get('/about-us', function () {
     return Inertia::render('AboutUs');
 })->name('about-us');
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('user/show/{id}', fn (Request $request) => response()->json(['data' => UserResource::make(User::query()->firstWhere('id', '=', $request->id))]))->whereNumber('id');
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'user.last.seen.at'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -78,6 +81,7 @@ Route::middleware(['auth', 'user.last.seen.at'])->group(function () {
             Route::get('/search', 'search')->name('search');
             Route::get('{id}', 'show')->name('show');
             Route::post('', 'store')->name('store');
+            Route::post('/add-friend', 'addFriend')->name('add-friend');
             Route::prefix('message')
                 ->name('message.')
                 ->group(function () {
@@ -93,10 +97,10 @@ Route::middleware(['auth', 'user.last.seen.at'])->group(function () {
         ->name('friend.')
         ->group(function () {
             Route::get('', 'index')->name('index');
-            Route::get('{name}', 'show')->name('show');
+            Route::get('json', 'json')->name('json');
             Route::get('bid', 'showBids')->name('bid');
             Route::post('', 'store')->name('store');
-            Route::delete('{id}', 'destroy')->name('delete');
+            Route::delete('{id}', 'destroy')->name('delete')->whereNumber('id');
         });
 });
 

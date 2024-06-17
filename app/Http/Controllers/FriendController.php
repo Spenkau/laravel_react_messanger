@@ -2,18 +2,40 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class FriendController extends Controller
 {
     public function index()
     {
         return inertia('Friend/Index', [
-            'friends' => Auth::user()->friends
+            'friends' => $this->getFriends()
         ]);
+    }
+
+    public function json()
+    {
+        return response()->json(['data' => $this->getFriends()]);
+    }
+
+    public function getFriends()
+    {
+        $meSent = User::query()
+            ->join('user_friend', 'users.id', '=', 'user_friend.friend_id')
+            ->where('user_friend.user_id', '=', auth()->id())
+            ->where('user_friend.is_accepted', true)
+            ->select('users.*');
+
+        $toMeSent = User::query()
+            ->join('user_friend', 'users.id', '=', 'user_friend.user_id')
+            ->where('user_friend.friend_id', '=', auth()->id())
+            ->where('user_friend.is_accepted', true)
+            ->select('users.*');
+
+        return $meSent->union($toMeSent)->where('users.id', '<>', auth()->id())->get();
     }
 
     public function show(string $name)
@@ -21,7 +43,7 @@ class FriendController extends Controller
         return response()->json([
             'success' => true,
             'data' => UserResource::collection(
-                Auth::user()->query()
+                auth()->user()->query()
                     ->where('name', 'LIKE', "%$name%")
                     ->orWhere('email', 'LIKE', "%$name%")
                     ->get()
@@ -31,20 +53,16 @@ class FriendController extends Controller
 
     public function showBids()
     {
-        return response()->json([
-            'success' => true,
-            'data' => UserResource::collection(Auth::user()->friendRequest()->get())
-        ]);
-    }
+            $bids = User::query()
+                ->join('user_friend', 'users.id', '=', 'user_friend.user_id')
+                ->where('user_friend.friend_id', auth()->id())
+                ->where('user_friend.is_accepted', false)
+                ->get(['users.*']);
 
-    public function acceptBid(int $friendId)
-    {
-        $friend = Auth::user()
-            ->friends()
-            ->where('friend_id', '=', $friendId)
-            ->first();
-
-        $friend->update(['is_accepted' => true]);
+            return response()->json([
+                'success' => true,
+                'data' => UserCollection::make($bids)
+            ]);
     }
 
     public function store(Request $request)
@@ -53,7 +71,7 @@ class FriendController extends Controller
             $user = auth()->user();
             $friend = User::query()->findOrFail($request->friend_id);
 
-            $user->friends()->attach($friend->id);
+            $user->friendsOfMine()->updateExistingPivot($friend->id, ['is_accepted' => 1]);
 
             return response()->json(['message' => 'Друг добавлен']);
         } catch (\Exception $exception) {

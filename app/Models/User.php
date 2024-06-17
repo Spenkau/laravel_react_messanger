@@ -11,6 +11,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Scout\Searchable;
 
+/**
+ * @method static findOrFail(mixed $friend_id)
+ */
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, Searchable;
@@ -104,9 +107,11 @@ class User extends Authenticatable
             ->where('is_accepted', '=', true);
     }
 
-    public function friendRequest(): BelongsToMany
+    /**
+     * @return BelongsToMany
+     */
+    public function friendsOfMine(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'user_friend', 'friend_id', 'user_id')
-            ->where('is_accepted', '=', false);
+        return $this->belongsToMany(User::class, 'user_friend', 'friend_id', 'user_id');
     }
 }

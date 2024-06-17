@@ -10,13 +10,18 @@ use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\Chat;
+use App\Services\ChatService;
 
 class ChatController extends Controller
 {
+    public function __construct(
+        protected readonly ChatService $chatService
+    ) {}
+
     public function index()
     {
         return inertia('Chat/Index', [
-            'users' => UserCollection::make($this->getChatWithUser()),
+            'users' => UserCollection::make($this->chatService->getChatWithUser()),
         ]);
     }
 
@@ -36,7 +41,7 @@ class ChatController extends Controller
         }
 
         return inertia('Chat/Show', [
-            'users' => UserCollection::make($this->getChatWithUser()),
+            'users' => UserCollection::make($this->chatService->getChatWithUser()),
             'chat_with' => UserResource::make($user),
             'messages' => $this->loadMessages($user),
         ]);
@@ -44,7 +49,7 @@ class ChatController extends Controller
 
     public function chat(User $user, ChatRequest $request)
     {
-        $message = \Auth::user()->messages()->create([
+        $message = auth()->user()->messages()->create([
             'receiver_id' => $user->id,
             'message' => $request->message,
             'reply_id' => $request->reply_id,
@@ -68,45 +73,6 @@ class ChatController extends Controller
         broadcast(new NewMessageEvent($message->load('receiver')))->toOthers();
 
         return redirect()->back();
-    }
-
-    private function getChatWithUser()
-    {
-        return User::query()
-            ->whereHas('receiveMessages', function ($query) {
-                $query->where('sender_id', auth()->id());
-            })
-            ->orWhereHas('sendMessages', function ($query) {
-                $query->where('receiver_id', auth()->id());
-            })
-            ->withCount(['messages' => fn($query) => $query->where('receiver_id', auth()->id())->whereNull('seen_at')])
-            ->with([
-                'sendMessages' => function ($query) {
-                    $query->whereIn('id', function ($query) {
-                        $query->selectRaw('max(id)')
-                            ->from('chats')
-                            ->where('receiver_id', auth()->id())
-                            ->groupBy('sender_id');
-                    });
-                },
-                'receiveMessages' => function ($query) {
-                    $query->whereIn('id', function ($query) {
-                        $query->selectRaw('max(id)')
-                            ->from('chats')
-                            ->where('sender_id', auth()->id())
-                            ->groupBy('receiver_id');
-                    });
-                },
-            ])
-            ->orderByDesc(function ($query) {
-                $query->select('created_at')
-                    ->from('chats')
-                    ->whereColumn('sender_id', 'users.id')
-                    ->orWhereColumn('receiver_id', 'users.id')
-                    ->orderByDesc('created_at')
-                    ->limit(1);
-            })
-            ->get();
     }
 
     private function loadMessages($user)

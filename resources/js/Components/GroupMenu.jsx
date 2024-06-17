@@ -207,7 +207,7 @@ export default function GroupMenu({ settings }) {
                                             <ul className="mt-4">
                                                 {searchResults.map((group) => (
                                                     <li key={group.id} className="mb-2">
-                                                        <a href={`/groups/${group.id}`} className="text-blue-600 hover:underline">
+                                                        <a href={`/group/${group.id}`} className="text-blue-600 hover:underline">
                                                             {group.name}
                                                         </a>
                                                     </li>
