@@ -23,7 +23,7 @@ Source code : [GitHub](https://github.com/raprmdn/laravel-chat-app)
 Clone the repository
 
 ```bash
-git clone https://github.com/raprmdn/laravel-chat-app
+git clone https://github.com/Spenkau/laravel_react_messanger
 ```
 
 Go to the project directory
@@ -75,7 +75,7 @@ npm install -g @soketi/soketi
 Run Soketi with custom configuration.
 
 ```bash
-soketi start --config=soketi.config.json
+npm run soketi
 ```
 
 Run the application
@@ -87,20 +87,5 @@ php artisan serve
 # Run React JS
 npm run dev
 ```
-
-## Screenshots
-
-![Laravel Chat App Homepage](https://ik.imagekit.io/peqmgufll/content/laravel-chat-app.png?updatedAt=1694491872249)
-
-![Laravel Chat App Search User](https://ik.imagekit.io/peqmgufll/content/laravel-chat-app-search-user.png?updatedAt=1694491872123)
-
-![Laravel Chat App Send Message](https://ik.imagekit.io/peqmgufll/content/laravel-chat-app-send-message.png?updatedAt=1694491872273)
-
-![Laravel Chat App Reply Message](https://ik.imagekit.io/peqmgufll/content/laravel-chat-app-reply-message.png?updatedAt=1694491872180)
-
-![Laravel Chat App Reply and Delete Message](https://ik.imagekit.io/peqmgufll/content/laravel-chat-app-reply-and-delete-message.png?updatedAt=1694491872175)
-
-![Laravel Chat App Preview](https://ik.imagekit.io/peqmgufll/content/laravel-chat-app-preview.gif?updatedAt=1694491874080)
-
 
 
