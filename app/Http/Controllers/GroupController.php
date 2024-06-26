@@ -42,7 +42,7 @@ class GroupController extends Controller
         $selectedGroup = Group::find($id);
 
         return inertia('Group/Show', [
-            'group' => $selectedGroup,
+            'group' => $selectedGroup->load('users'),
             'groups' => GroupCollection::make($this->getUserGroups($request->query())),
             'group_messages' => MessageGroup::query()
                 ->where('group_id', '=', $selectedGroup->id)
@@ -50,6 +50,7 @@ class GroupController extends Controller
                 ->select('message_group.*', 'users.name as user_name')
                 ->orderBy('created_at', 'desc')
                 ->get(),
+            'groupUser' => $selectedGroup->users()->where('user_id', auth()->id())->first()
         ]);
     }
 
@@ -65,9 +66,17 @@ class GroupController extends Controller
 
         $group = Group::create(Arr::except($request->validated(), 'image'));
 
-        $group->users()->attach(Auth::id());
+        $group->users()->attach(Auth::id(), ['role_id' => 3]);
 
         return redirect()->back();
+    }
+
+    public function delete(int $id): JsonResponse
+    {
+        $group = Group::query()->find($id);
+        $group->delete();
+
+        return response()->json(['message' => 'Группа удалена!']);
     }
 
     /**
@@ -80,7 +89,7 @@ class GroupController extends Controller
             $group = Group::findOrFail($request->group_id);
             $friend = User::findOrFail($request->friend_id);
 
-            DB::table('user_group')->insert(['user_id' => $friend->id, 'group_id' => $group->id]);
+            DB::table('user_group')->insert(['user_id' => $friend->id, 'group_id' => $group->id, 'role_id' => 0]);
 
             return response()->json(['message' => 'Друг добавлен в группу']);
         } catch (\Exception $exception) {
@@ -103,12 +112,55 @@ class GroupController extends Controller
 
     /**
      * @param UpdateRequest $request
-     * @return void
+     * @return JsonResponse
      */
-    public function updateMessage(UpdateRequest $request)
+    public function updateMessage(UpdateRequest $request): JsonResponse
     {
-        MessageGroup::query()->update($request->validated());
+        $data = $request->validated();
+
+        $message = MessageGroup::find($data['id']);
+        if ($message) {
+            $message->update(['message' => $data['message']]);
+        }
+
+        $groupMessages = MessageGroup::query()
+            ->where('group_id', '=', $data['group_id'])
+            ->join('users', 'message_group.user_id', '=', 'users.id')
+            ->select('message_group.*', 'users.name as user_name')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'group_messages' => $groupMessages,
+        ]);
     }
+
+    public function detachUser(int $groupId, int $userId)
+    {
+        try {
+            $group = Group::findOrFail($groupId);
+
+            $group->users()->detach($userId);
+
+            return response()->json(['message' => 'Пользователь успешно удален из группы']);
+        } catch (\Exception $exception) {
+            return response()->json(['error' => 'Ошибка при удалении пользователя из группы'], 500);
+        }
+    }
+
+    public function changeUserRole(int $groupId, int $userId, Request $request): JsonResponse
+    {
+        try {
+            $group = Group::findOrFail($groupId);
+
+            $group->users()->attach($userId, ['role_id' => $request->role_id]);
+
+            return response()->json(['message' => 'Пользователю успешно изменен статус']);
+        } catch (\Exception $exception) {
+            return response()->json(['message' => 'Ошибка изменения статуса'], 500);
+        }
+    }
+
 
     /**
      * @param MessageGroup $message

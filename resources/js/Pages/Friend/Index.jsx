@@ -18,8 +18,9 @@ export default function Index({ auth }) {
 
     const handleAddFriend = async (id) => {
         try {
-            await axios.post('/friend', { friend_id: id })
-                .then(() => alert('Запрос отправлен!'));
+            await axios.post('/friend/sendBid', { friend_id: id })
+
+            alert('Запрос отправлен!');
         } catch (error) {
             console.error('Error adding friend:', error);
         }
@@ -57,10 +58,14 @@ export default function Index({ auth }) {
 
     const handleFriendRequests = async () => {
         try {
-            const response = await axios.get('/friend/bid');
-            console.log("DATA", response.data.data.data)
-            setFriendRequests(response.data.data.data);
-            setIsFriendRequestsOpen(true);
+            const response = await axios.get('/showBids');
+            console.log("DATA", response.data.data)
+            if (response.data.data) {
+                setFriendRequests(response.data.data);
+                setIsFriendRequestsOpen(true);
+            } else {
+                alert('Заявок нет!')
+            }
         } catch (error) {
             console.error('Ошибка:', error);
         }
@@ -68,7 +73,7 @@ export default function Index({ auth }) {
 
     const handleAcceptRequest = async (id) => {
         try {
-            await axios.post('/friend', { friend_id: id });
+            await axios.post('/friend/acceptBid', { friend_id: id });
             setFriendRequests(friendRequests.filter(request => request.id !== id));
         } catch (error) {
             console.error('Ошибка:', error);
@@ -77,8 +82,10 @@ export default function Index({ auth }) {
 
     const handleRejectRequest = async (id) => {
         try {
-            await axios.post('/friend/reject', { id });
+            const res = await axios.post('/friend/rejectBid', { friend_id: id });
             setFriendRequests(friendRequests.filter(request => request.id !== id));
+
+            alert(res.data.message)
         } catch (error) {
             console.error('Ошибка:', error);
         }

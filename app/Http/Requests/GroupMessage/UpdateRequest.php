@@ -14,7 +14,9 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-
+            'id' => ['required', 'integer', 'exists:message_group,id'],
+            'group_id' => ['required', 'integer'],
+            'message' => ['required', 'string']
         ];
     }
 }

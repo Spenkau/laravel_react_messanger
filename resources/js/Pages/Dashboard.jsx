@@ -2,6 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage } from '@inertiajs/react';
 import WallClock from '@/Components/WallClock';
 import Reminder from '@/Components/Reminder';
+import Yandex from "@/Components/Yandex.jsx";
 
 export default function Dashboard({ auth }) {
     const { users } = usePage().props;
@@ -42,6 +43,7 @@ export default function Dashboard({ auth }) {
                         <div className="flex flex-col md:flex-row items-center justify-around space-y-6 md:space-y-0 bg-gray-50 p-8 rounded-lg shadow-md">
                             <WallClock />
                             <Reminder authUser={auth}/>
+                            <Yandex />
                         </div>
                         <div className="mt-8 flex flex-col md:flex-row justify-around space-y-4 md:space-y-0">
                             <Link

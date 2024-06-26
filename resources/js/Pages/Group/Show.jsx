@@ -7,32 +7,33 @@ import HeaderGroupBox from "@/Components/HeaderGroupBox.jsx";
 import GroupMessage from "@/Components/GroupMessage.jsx";
 
 export default function Show() {
-    const {auth, group_messages: messages, group} = usePage().props;
-    const {settings} = useSettings();
-    const scrollRef = useRef(null)
-    const [reply, setReply] = useState(null)
-    const [isTyping, setIsTyping] = useState(null)
+    const { auth, group_messages: messages, group, groupUser } = usePage().props;
+    const { settings } = useSettings();
+    const scrollRef = useRef(null);
+    const [reply, setReply] = useState(null);
+    const [isTyping, setIsTyping] = useState(null);
     const [isEdit, setIsEdit] = useState(false);
     const [selectedMessage, setSelectedMessage] = useState(null);
+    const [groupMessages, setGroupMessages] = useState(messages);
 
     useEffect(() => {
-        scrollRef.current?.scrollTo(0, scrollRef.current?.scrollHeight)
-    }, [messages, reply])
+        scrollRef.current?.scrollTo(0, scrollRef.current?.scrollHeight);
+    }, [groupMessages, reply]);
 
     const replyHandleState = (message) => {
-        setReply(message)
-    }
+        setReply(message);
+    };
 
     return (
         <div className="flex flex-col w-full lg:w-2/3">
-            <HeaderGroupBox settings={settings} group={group}/>
+            <HeaderGroupBox settings={settings} group={group} groupUser={groupUser} auth={auth} />
 
             <div className="flex-1 h-screen px-2 pb-5 overflow-y-scroll lg:px-8" ref={scrollRef}>
                 <div className="grid grid-cols-12">
                     <GroupMessage
                         settings={settings}
                         auth={auth}
-                        messages={messages}
+                        messages={groupMessages}
                         setIsEdit={setIsEdit}
                         setSelectedMessage={setSelectedMessage}
                     />
@@ -47,10 +48,11 @@ export default function Show() {
                     setIsEdit={setIsEdit}
                     selectedMessage={selectedMessage}
                     setSelectedMessage={setSelectedMessage}
+                    setMessages={setGroupMessages}
                 />
             </div>
         </div>
     );
 }
 
-Show.layout = (page) => <App children={page}/>;
+Show.layout = (page) => <App children={page} />;

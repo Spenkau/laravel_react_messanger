@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Models\UserFriend;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FriendController extends Controller
 {
@@ -51,18 +53,71 @@ class FriendController extends Controller
         ]);
     }
 
-    public function showBids()
+    public function showBids(): \Illuminate\Http\JsonResponse
     {
-            $bids = User::query()
-                ->join('user_friend', 'users.id', '=', 'user_friend.user_id')
-                ->where('user_friend.friend_id', auth()->id())
-                ->where('user_friend.is_accepted', false)
-                ->get(['users.*']);
+        $bids = User::query()
+            ->join('user_friend', 'users.id', '=', 'user_friend.friend_id')
+            ->where('user_friend.user_id', '=', auth()->id())
+            ->where('user_friend.is_accepted', false)
+            ->select('users.*')->get();
 
-            return response()->json([
-                'success' => true,
-                'data' => UserCollection::make($bids)
-            ]);
+//        $bids = $meSent->union($toMeSent)->where('users.id', '<>', auth()->id())->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => UserResource::collection($bids)
+        ]);
+    }
+
+    public function sendBid(Request $request)
+    {
+        $user = auth()->user();
+        $friendId = $request->input('friend_id');
+
+        if ($user->friendsOfMine()->where('friend_id', $friendId)->exists()) {
+            return response()->json(['message' => 'Запрос уже отправлен']);
+        }
+
+        $user->friendsOfMine()->attach($friendId, ['is_accepted' => false]);
+
+        return response()->json(['message' => 'Запрос успешно отправлен']);
+    }
+
+    public function acceptBid(Request $request)
+    {
+        $friendId = $request->friend_id;
+
+        $rec = UserFriend::query()->where([
+            'user_id' => auth()->id(),
+            'friend_id' => $friendId
+        ])->first();
+
+
+        if (!$rec) {
+            return response()->json(['error' => 'Запрос на дружбу не найден']);
+        }
+
+        $rec->update(['is_accepted' => true]);
+
+        return response()->json(['message' => 'Запрос на дружбу принят']);
+    }
+
+    public function rejectBid(Request $request)
+    {
+        $friendId = $request->friend_id;
+
+        $rec = UserFriend::query()->where([
+            'user_id' => auth()->id(),
+            'friend_id' => $friendId
+        ])->first();
+
+        if (! $rec) {
+            return response()->json(['message' => 'Запрос на дружбу не найден']);
+        }
+
+        $rec->delete();
+
+        return response()->json(['message' => 'Запрос на дружбу отклонен']);
     }
 
     public function store(Request $request)
@@ -87,5 +142,17 @@ class FriendController extends Controller
         $user->friends()->detach($friend->id);
 
         return response()->json(['message' => "$friend->name удален из списка друзей!"]);
+    }
+
+    public function findUser(string $name): \Illuminate\Http\JsonResponse
+    {
+        $users = User::query()->where('name', 'LIKE', "%$name%")
+            ->orWhere('email', 'LIKE', "%$name%")
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => UserResource::collection($users)
+        ]);
     }
 }

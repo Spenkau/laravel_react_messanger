@@ -8,7 +8,7 @@ export default function AddUserToGroupModal({ isAddFriendOpen, setIsAddFriendOpe
 
     const getFriends = async (retry = true) => {
         try {
-            const response = await axios.get(`/friend/json`);
+            const response = await axios.get(`/friendsInJson`);
             console.log("FRS",response.data)
             setFriends(response.data.data);
         } catch (error) {
@@ -30,10 +30,8 @@ export default function AddUserToGroupModal({ isAddFriendOpen, setIsAddFriendOpe
     };
 
     useEffect(() => {
-        if (isAddFriendOpen) {
-            getFriends();
-        }
-    }, [isAddFriendOpen]);
+        getFriends();
+    }, []);
 
     const filteredFriends = friends.filter(friend =>
         friend.name.toLowerCase().includes(searchTerm.toLowerCase())
