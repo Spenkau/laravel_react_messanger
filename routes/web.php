@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\YandexVideoController;
 use App\Http\Resources\UserResource;
 use App\Models\Group;
 use App\Models\MessageGroup;
@@ -29,14 +30,7 @@ Route::get('test', function () {
 //    $groups = Group::whereHas('users', function($query) {
 //        $query->where('user_id', 51);
 //    })->with('users')->get();
-    $messages = MessageGroup::query()
-        ->where('group_id', '=', 2)
-        ->join('users', 'message_group.user_id', '=', 'users.id')
-        ->select('message_group.*', 'users.name as user_name')
-        ->orderBy('created_at', 'desc')
-        ->get();
-
-    return response()->json(['groups' => $messages]);
+    return response()->json(['data' => \App\Models\Chat::query()->where('message', 'test')->get()]);
 });
 
 Route::get('/', function () {
@@ -51,6 +45,10 @@ Route::get('/', function () {
 Route::get('/about-us', function () {
     return Inertia::render('AboutUs');
 })->name('about-us');
+
+Route::get('/meet', function () {
+    return Inertia::render('Meet');
+})->name('meet');
 
 Route::get('user/show/{id}', fn (Request $request) => response()->json(['data' => UserResource::make(User::query()->firstWhere('id', '=', $request->id))]))->whereNumber('id');
 
@@ -82,11 +80,14 @@ Route::middleware(['auth', 'user.last.seen.at'])->group(function () {
             Route::get('{id}', 'show')->name('show');
             Route::post('', 'store')->name('store');
             Route::post('/add-friend', 'addFriend')->name('add-friend');
+            Route::delete('/{id}', 'delete')->name('delete')->whereNumber('id');
+            Route::delete('/{groupId}/user/{userId}', 'detachUser')->name('delete-user');
+            Route::put('/{groupId}/user/{userId}/role', 'changeUserRole')->name('change-user');
             Route::prefix('message')
                 ->name('message.')
                 ->group(function () {
                     Route::post('store', 'storeMessage')->name('store');
-                    Route::patch('update', 'updateMessage')->name('update');
+                    Route::put('update', 'updateMessage')->name('update');
                     Route::delete('delete/{message}', 'destroyMessage')->name('destroy');
                 });
         });
@@ -97,11 +98,46 @@ Route::middleware(['auth', 'user.last.seen.at'])->group(function () {
         ->name('friend.')
         ->group(function () {
             Route::get('', 'index')->name('index');
+            Route::get('{name}', 'findUser')->name('find');
             Route::get('json', 'json')->name('json');
             Route::get('bid', 'showBids')->name('bid');
-            Route::post('', 'store')->name('store');
+            Route::post('sendBid', 'sendBid')->name('sendBid');
+            Route::post('acceptBid', 'acceptBid')->name('acceptBid');
+            Route::post('rejectBid', 'rejectBid')->name('rejectBid');
             Route::delete('{id}', 'destroy')->name('delete')->whereNumber('id');
         });
 });
+
+Route::get('friendsInJson', function () {
+    $meSent = User::query()
+        ->join('user_friend', 'users.id', '=', 'user_friend.friend_id')
+        ->where('user_friend.user_id', '=', auth()->id())
+        ->where('user_friend.is_accepted', true)
+        ->select('users.*');
+
+    $toMeSent = User::query()
+        ->join('user_friend', 'users.id', '=', 'user_friend.user_id')
+        ->where('user_friend.friend_id', '=', auth()->id())
+        ->where('user_friend.is_accepted', true)
+        ->select('users.*');
+
+    return response()->json(['data' => $meSent->union($toMeSent)->where('users.id', '<>', auth()->id())->get()]);
+});
+
+Route::get('showBids', function () {
+
+    $bids = User::query()
+        ->join('user_friend', 'users.id', '=', 'user_friend.friend_id')
+        ->where('user_friend.user_id', '=', auth()->id())
+        ->where('user_friend.is_accepted', false)
+        ->select('users.*')->get();
+
+    return response()->json([
+        'success' => true,
+        'data' => UserResource::collection($bids)
+    ]);
+});
+
+Route::post('create-meeting', [YandexVideoController::class, 'createMeeting']);
 
 require __DIR__ . '/auth.php';
